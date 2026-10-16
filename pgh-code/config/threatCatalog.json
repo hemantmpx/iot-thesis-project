@@ -1,0 +1,10 @@
+{
+  "events": [
+    { "code": "UNAUTHORIZED_ACCESS", "name": "Unauthorized access", "severity": "high", "stride": "elevation of privilege", "response": "deny", "autoResponse": { "type": "warn" }, "tokenAdjustment": -1 },
+    { "code": "DATA_TAMPERING", "name": "Data tampering", "severity": "high", "stride": "tampering", "response": "deny", "autoResponse": { "type": "suspend" }, "tokenAdjustment": -5 },
+    { "code": "TOO_MANY_ACCESS_ATTEMPTS", "name": "Too many attempts", "severity": "medium", "stride": "dos", "response": "rate-limit", "autoResponse": { "type": "warn" }, "tokenAdjustment": -1 },
+    { "code": "DISRUPTION_OF_SERVICE", "name": "Possible DoS", "severity": "high", "stride": "dos", "response": "block", "autoResponse": { "type": "ban" }, "tokenAdjustment": -10 },
+    { "code": "SUCCESSFUL_ACCESS", "name": "Successful access", "severity": "info", "stride": "n/a", "response": "allow", "autoResponse": { "type": "reward" }, "tokenAdjustment": 1 },
+    { "code": "MISREPRESENTATION_OF_IDENTITY", "name": "Duplicate registration", "severity": "medium", "stride": "spoofing", "response": "deny", "autoResponse": { "type": "warn" }, "tokenAdjustment": -2 }
+  ]
+}

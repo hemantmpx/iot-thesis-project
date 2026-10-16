@@ -1,0 +1,9 @@
+{
+  "apiUrl": "http://localhost:8080",
+  "deviceAddress": "0xSUBJECT_ADDRESS",
+  "objectAddress": "0xOBJECT_ADDRESS",
+  "accType": "sensor",
+  "resource": "sensor/temp",
+  "action": "view",
+  "note": "Populate with values from iot/pi/provisioned/esp-*.json and flash to the ESP firmware."
+}

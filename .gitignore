@@ -1,0 +1,18 @@
+
+# Local credentials, machine state, and generated artifacts
+.env
+.env.*
+!.env.example
+!.env.template
+!.example.env
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.py[cod]
+__pycache__/
+node_modules/
+.venv/
+.next/
+.pio/
+.DS_Store

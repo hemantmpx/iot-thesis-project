@@ -1,0 +1,24 @@
+{
+  "roles": {
+    "ADMIN": {
+      "localResourceTable": ["view", "edit", "delete", "create"],
+      "globalResourceTable": ["view", "edit", "delete", "create"]
+    },
+    "PRIMARY_GROUP_HEAD": {
+      "localResourceTable": ["view", "edit", "create"],
+      "globalResourceTable": ["view", "edit", "create"]
+    },
+    "SECONDARY_GROUP_HEAD": {
+      "localResourceTable": ["view", "edit"],
+      "globalResourceTable": ["view", "edit"]
+    },
+    "REGULAR_MEMBER": {
+      "localResourceTable": ["view"],
+      "globalResourceTable": ["view"]
+    },
+    "UNKNOWN": {
+      "localResourceTable": [],
+      "globalResourceTable": []
+    }
+  }
+}

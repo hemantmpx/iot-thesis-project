@@ -1,0 +1,21 @@
+{
+  "name": "primary-group-head-service",
+  "version": "0.1.0",
+  "main": "primary_head.js",
+  "scripts": {
+    "start": "node primary_head.js",
+    "harness": "node harness.js",
+    "collect": "node collect.js",
+    "collect:extended": "node collect-extended.js",
+    "provision:esp": "node provision-esp.js"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.1",
+    "express": "^4.19.2",
+    "prom-client": "^14.1.1",
+    "solc": "^0.8.21"
+  }
+}

@@ -1,0 +1,711 @@
+{
+  "generated_at": "2026-05-17T00:00:00.000Z",
+  "notes": "Logical operation map for the scenario-centric thesis runner. Mandatory 8 labels are preserved and additional operations are included for broader smart-contract function coverage.",
+  "scenario_groups": [
+    "normal",
+    "timing",
+    "threat"
+  ],
+  "operations": [
+    {
+      "label": "Policy Add",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "policyAdd(resource, action, permission)"
+      ],
+      "logical_stage": "policy_setup",
+      "onchain_or_offchain_trigger": "PGH endpoint + on-chain transaction (or direct malicious call)",
+      "invocation": {
+        "benign": "POST /policies -> AccessControlContract.policyAdd",
+        "malicious": "Direct non-creator call -> AccessControlContract.policyAdd"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_01",
+        "normal_rich_federated_success_02",
+        "timing_breakdown_cross_pgh_01",
+        "timing_breakdown_multi_call_01",
+        "threat_privilege_escalation_01",
+        "threat_unauthorized_access_01",
+        "threat_tampering_01",
+        "threat_too_frequent_access_01",
+        "threat_dos_like_pattern_01"
+      ]
+    },
+    {
+      "label": "Policy Update",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "policyUpdate(policyId, resource, action, permission)"
+      ],
+      "logical_stage": "policy_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Creator call -> AccessControlContract.policyUpdate",
+        "malicious": "Non-creator call -> AccessControlContract.policyUpdate"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "timing_breakdown_multi_call_01",
+        "threat_privilege_escalation_01",
+        "threat_tampering_01"
+      ]
+    },
+    {
+      "label": "Policy Delete",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "policyDelete(policyId)"
+      ],
+      "logical_stage": "policy_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Creator call -> AccessControlContract.policyDelete",
+        "malicious": "Non-creator call -> AccessControlContract.policyDelete"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_tampering_01"
+      ]
+    },
+    {
+      "label": "Access Contract Set Judge",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "setJudgeContract(judgeAddress)"
+      ],
+      "logical_stage": "access_contract_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Configuration call with expected judge address",
+        "malicious": "Unauthorized/tampering-oriented call path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_privilege_escalation_01"
+      ]
+    },
+    {
+      "label": "Access Contract Deactivate",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "deactivateContract()"
+      ],
+      "logical_stage": "access_contract_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Creator call -> deactivateContract",
+        "malicious": "Unauthorized call -> onlyCreator penalty path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "timing_breakdown_multi_call_01",
+        "threat_privilege_escalation_01",
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "Access Contract Activate",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "activateContract()"
+      ],
+      "logical_stage": "access_contract_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Creator call -> activateContract",
+        "malicious": "Unauthorized call -> onlyCreator penalty path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "timing_breakdown_multi_call_01"
+      ]
+    },
+    {
+      "label": "Access Control without Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportNonPenalizeMisbehavior(member) [auto/contract path]"
+      ],
+      "logical_stage": "authorization",
+      "onchain_or_offchain_trigger": "PGH endpoint + on-chain transaction(s)",
+      "invocation": {
+        "benign": "POST /evaluate-access (logOnChain=true)"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_01",
+        "normal_rich_federated_success_02",
+        "timing_breakdown_cross_pgh_01",
+        "timing_breakdown_multi_call_01"
+      ]
+    },
+    {
+      "label": "Access Control with Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path]"
+      ],
+      "logical_stage": "threat_handling",
+      "onchain_or_offchain_trigger": "PGH endpoint + on-chain transaction(s)",
+      "invocation": {
+        "malicious": "POST /evaluate-access with unauthorized or tampering action"
+      },
+      "scenario_usage": [
+        "timing_breakdown_cross_pgh_01",
+        "timing_breakdown_multi_call_01",
+        "threat_unauthorized_access_01",
+        "threat_tampering_01",
+        "threat_too_frequent_access_01",
+        "threat_dos_like_pattern_01"
+      ]
+    },
+    {
+      "label": "ESP Telemetry Bootstrap",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "AccessControlFactory",
+        "AccessControlContract"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.assignRole(memberAddress, name, memberType) [via PGH /register-device]",
+        "AccessControlFactory.createAccessControl(object, subject, accType) [via PGH /deploy-contract]",
+        "AccessControlContract.policyAdd(resource, action, permission) [via PGH /policies]"
+      ],
+      "logical_stage": "bridge_bootstrap",
+      "onchain_or_offchain_trigger": "ESP bridge /data endpoint with PGH-backed blockchain side effects",
+      "invocation": {
+        "benign": "POST /data -> bridge ensures identity, ACC deployment, and default policies on-chain"
+      },
+      "scenario_usage": [
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "ESP Device Enumeration",
+      "contracts": [],
+      "functions": [],
+      "logical_stage": "reconnaissance",
+      "onchain_or_offchain_trigger": "ESP bridge database/API read only",
+      "invocation": {
+        "malicious": "GET /devices from a compromised bridge-side client"
+      },
+      "scenario_usage": []
+    },
+    {
+      "label": "ESP Data Spoofing",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, compare) [alert-triggered bridge compare path]",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path when triggered]"
+      ],
+      "logical_stage": "data_tampering",
+      "onchain_or_offchain_trigger": "ESP bridge /data endpoint with forged telemetry plus on-chain compare logging",
+      "invocation": {
+        "malicious": "POST /data with spoofed MAC/telemetry to poison bridge state while preserving blockchain logging"
+      },
+      "scenario_usage": []
+    },
+    {
+      "label": "ESP Status Access without Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportNonPenalizeMisbehavior(member) [auto/contract path]"
+      ],
+      "logical_stage": "implant_checkin",
+      "onchain_or_offchain_trigger": "ESP bridge /status/<mac> endpoint + PGH /evaluate-access",
+      "invocation": {
+        "benign": "GET /status/<mac> with X-Requestor-MAC=<same-mac>; bridge still logs to blockchain"
+      },
+      "scenario_usage": [
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "ESP Status Access with Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path]"
+      ],
+      "logical_stage": "lateral_probe",
+      "onchain_or_offchain_trigger": "ESP bridge /status/<mac> endpoint + PGH /evaluate-access",
+      "invocation": {
+        "malicious": "GET /status/<target-mac> with X-Requestor-MAC=<different-mac>; denial or later success is decided on-chain"
+      },
+      "scenario_usage": [
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "ESP Temps Access without Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportNonPenalizeMisbehavior(member) [auto/contract path]"
+      ],
+      "logical_stage": "telemetry_access",
+      "onchain_or_offchain_trigger": "ESP bridge /temps/<mac> endpoint + PGH /evaluate-access",
+      "invocation": {
+        "benign": "GET /temps/<mac> with X-Requestor-MAC=<same-mac>; bridge logs the allow path on-chain"
+      },
+      "scenario_usage": []
+    },
+    {
+      "label": "ESP Temps Access with Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path]"
+      ],
+      "logical_stage": "lateral_probe",
+      "onchain_or_offchain_trigger": "ESP bridge /temps/<mac> endpoint + PGH /evaluate-access",
+      "invocation": {
+        "malicious": "GET /temps/<target-mac> with X-Requestor-MAC=<different-mac>; denial is still decided on-chain before the later burst step"
+      },
+      "scenario_usage": [
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "ESP Repeated Access Burst with Misbehavior",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action) [repeated alternating calls]",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path when thresholds are crossed]"
+      ],
+      "logical_stage": "dos_burst",
+      "onchain_or_offchain_trigger": "ESP bridge alternating /status and /temps endpoint burst + PGH /evaluate-access",
+      "invocation": {
+        "malicious": "Alternating GET /status/<target-mac> and GET /temps/<target-mac> with X-Requestor-MAC=<different-mac> until Judge reaches temporary quarantine or permanent revocation for the current wave"
+      },
+      "scenario_usage": [
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "ESP Status Access after Approval Abuse",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path if still triggered]"
+      ],
+      "logical_stage": "post_abuse_validation",
+      "onchain_or_offchain_trigger": "ESP bridge /status/<mac> endpoint + PGH /evaluate-access after malicious policy insertion",
+      "invocation": {
+        "malicious": "GET /status/<target-mac> with X-Requestor-MAC=<different-mac> after localhost approval abuse has written allow policies on-chain"
+      },
+      "scenario_usage": []
+    },
+    {
+      "label": "ESP Status Access after Recovery",
+      "contracts": [
+        "AccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "AccessControlContract.accessControl(resource, action)",
+        "JudgeContract.reportMaliciousActivity(member, reason) [auto/contract path if still triggered]"
+      ],
+      "logical_stage": "post_attack_validation",
+      "onchain_or_offchain_trigger": "ESP bridge /status/<mac> endpoint + PGH /evaluate-access after role/ACC containment",
+      "invocation": {
+        "malicious": "GET /status/<target-mac> with X-Requestor-MAC=<different-mac> after the staged wave engine has permanently revoked the malicious member"
+      },
+      "scenario_usage": [
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "ESP Local Approval Abuse",
+      "contracts": [
+        "AccessControlContract"
+      ],
+      "functions": [
+        "AccessControlContract.policyAdd(resource, action, permission) [via PGH /policies]"
+      ],
+      "logical_stage": "controller_abuse",
+      "onchain_or_offchain_trigger": "ESP bridge /approve-access endpoint causing on-chain policy insertion",
+      "invocation": {
+        "malicious": "POST /approve-access from localhost to simulate a compromised controller-side integration component"
+      },
+      "scenario_usage": []
+    },
+    {
+      "label": "Role Assignment",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "RoleToken"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.assignRole(memberAddress, name, memberType)",
+        "RoleToken.assignRole(memberAddress, name, memberType) [internal call]"
+      ],
+      "logical_stage": "identity_bootstrap",
+      "onchain_or_offchain_trigger": "PGH endpoint + on-chain transaction",
+      "invocation": {
+        "benign": "POST /register-device",
+        "malicious": "Duplicate/invalid registration attempt path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_01",
+        "normal_rich_federated_success_02",
+        "timing_breakdown_cross_pgh_01",
+        "timing_breakdown_multi_call_01",
+        "threat_privilege_escalation_01",
+        "threat_unauthorized_access_01",
+        "threat_tampering_01",
+        "threat_too_frequent_access_01",
+        "threat_dos_like_pattern_01",
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "Role Swap",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "RoleToken"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.swapRole(account1, account2)"
+      ],
+      "logical_stage": "role_management",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Admin call for role-lifecycle coverage",
+        "malicious": "Unauthorized call for privilege-escalation threat path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_privilege_escalation_01"
+      ]
+    },
+    {
+      "label": "Role Revoke",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "RoleToken"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.revokeRole(account)"
+      ],
+      "logical_stage": "role_management",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Admin role cleanup/revocation path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "Role Status Update",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "RoleToken"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.updateMemberStatus(member, status)"
+      ],
+      "logical_stage": "role_management",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Admin status update path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "Role Penalize",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "RoleToken"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.penalizeMember(member, amount)"
+      ],
+      "logical_stage": "role_management",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Admin penalization path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_during_after_poison_ivy_esp_bridge_compromise_01"
+      ]
+    },
+    {
+      "label": "Role Reward",
+      "contracts": [
+        "RoleBasedAccessControl",
+        "RoleToken"
+      ],
+      "functions": [
+        "RoleBasedAccessControl.rewardMember(member, amount)"
+      ],
+      "logical_stage": "role_management",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Admin reward path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "Register Set Judge Contract",
+      "contracts": [
+        "RegisterContract"
+      ],
+      "functions": [
+        "setJudgeContractAddress(judgeAddress)"
+      ],
+      "logical_stage": "registry_setup",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction from runner",
+      "invocation": {
+        "benign": "Owner call for registry configuration coverage",
+        "malicious": "Unauthorized registry update attempt"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_privilege_escalation_01"
+      ]
+    },
+    {
+      "label": "Create Table Access Request",
+      "contracts": [
+        "TableAccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "createAccessRequest(resource, action)",
+        "handleAccessRequest(requestId, approve)"
+      ],
+      "logical_stage": "table_validation",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction chain",
+      "invocation": {
+        "benign": "request + approvals + table-view path setup"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_01",
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "Create Table Access Request with Misbehavior",
+      "contracts": [
+        "TableAccessControlContract",
+        "JudgeContract"
+      ],
+      "functions": [
+        "createAccessRequest(resource, action)"
+      ],
+      "logical_stage": "table_threat_handling",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction",
+      "invocation": {
+        "malicious": "unauthorized table-request path"
+      },
+      "scenario_usage": [
+        "threat_tampering_01"
+      ]
+    },
+    {
+      "label": "View Local Resource Table",
+      "contracts": [
+        "TableAccessControlContract"
+      ],
+      "functions": [
+        "viewLocalResourceTable()"
+      ],
+      "logical_stage": "table_read",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction",
+      "invocation": {
+        "benign": "approved local-table view",
+        "malicious": "unapproved local-table view"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_01",
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "View Global Resource Table",
+      "contracts": [
+        "TableAccessControlContract"
+      ],
+      "functions": [
+        "viewGlobalResourceTable()"
+      ],
+      "logical_stage": "table_read",
+      "onchain_or_offchain_trigger": "Direct on-chain transaction",
+      "invocation": {
+        "benign": "approved global-table view",
+        "malicious": "unapproved global-table view"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "Table Edit Local Resource",
+      "contracts": [
+        "TableAccessControlContract",
+        "RoleBasedAccessControl"
+      ],
+      "functions": [
+        "createAccessRequest",
+        "handleAccessRequest",
+        "editLocalResourceTable(account1, account2)"
+      ],
+      "logical_stage": "table_mutation",
+      "onchain_or_offchain_trigger": "Direct on-chain multi-tx chain",
+      "invocation": {
+        "benign": "approved local edit path",
+        "malicious": "unapproved/unauthorized local edit path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_tampering_01"
+      ]
+    },
+    {
+      "label": "Table Edit Global Resource",
+      "contracts": [
+        "TableAccessControlContract",
+        "RoleBasedAccessControl"
+      ],
+      "functions": [
+        "createAccessRequest",
+        "handleAccessRequest",
+        "editGlobalResourceTable(account1, account2)"
+      ],
+      "logical_stage": "table_mutation",
+      "onchain_or_offchain_trigger": "Direct on-chain multi-tx chain",
+      "invocation": {
+        "benign": "approved global edit path",
+        "malicious": "unapproved/unauthorized global edit path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "Table Delete Local Resource",
+      "contracts": [
+        "TableAccessControlContract",
+        "RoleBasedAccessControl"
+      ],
+      "functions": [
+        "createAccessRequest",
+        "handleAccessRequest",
+        "deleteLocalResourceTable(account)"
+      ],
+      "logical_stage": "table_mutation",
+      "onchain_or_offchain_trigger": "Direct on-chain multi-tx chain",
+      "invocation": {
+        "benign": "approved local delete attempt",
+        "malicious": "tampering-oriented local delete attempt"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02",
+        "threat_tampering_01"
+      ]
+    },
+    {
+      "label": "Table Delete Global Resource",
+      "contracts": [
+        "TableAccessControlContract",
+        "RoleBasedAccessControl"
+      ],
+      "functions": [
+        "createAccessRequest",
+        "deleteGlobalResourceTable(account)"
+      ],
+      "logical_stage": "table_mutation",
+      "onchain_or_offchain_trigger": "Direct on-chain multi-tx chain",
+      "invocation": {
+        "malicious": "global delete threat/privilege path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "Table Policy Update",
+      "contracts": [
+        "TableAccessControlContract"
+      ],
+      "functions": [
+        "policyUpdate(policyId, role, resource, action, permission)"
+      ],
+      "logical_stage": "table_policy_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain owner transaction",
+      "invocation": {
+        "benign": "owner table-policy update path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02"
+      ]
+    },
+    {
+      "label": "Table Policy Delete",
+      "contracts": [
+        "TableAccessControlContract"
+      ],
+      "functions": [
+        "policyDelete(policyId)"
+      ],
+      "logical_stage": "table_policy_lifecycle",
+      "onchain_or_offchain_trigger": "Direct on-chain owner transaction",
+      "invocation": {
+        "benign": "owner table-policy delete path"
+      },
+      "scenario_usage": [
+        "normal_rich_federated_success_02"
+      ]
+    }
+  ]
+}
